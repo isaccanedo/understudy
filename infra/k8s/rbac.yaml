@@ -1,0 +1,33 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ${NAME_PREFIX}-deployer
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    project: ${NAME_PREFIX}
+rules:
+  - apiGroups: [""]
+    resources: [services, serviceaccounts, configmaps, pods, pods/log, events]
+    verbs: [get, list, watch, create, update, patch]
+  - apiGroups: ["apps"]
+    resources: [deployments, replicasets]
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: ["networking.k8s.io"]
+    resources: [ingresses, networkpolicies]
+    verbs: [get, list, watch, create, update, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ${NAME_PREFIX}-deployer
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    project: ${NAME_PREFIX}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ${NAME_PREFIX}-deployer
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: ${DEPLOY_K8S_GROUP}

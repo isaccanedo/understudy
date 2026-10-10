@@ -1,0 +1,1 @@
+ALTER TABLE "approvals" ADD COLUMN "request_id" text;

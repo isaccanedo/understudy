@@ -1,0 +1,32 @@
+{
+  "name": "@understudy/computer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Understudy computer: the per-agent container with Chromium, screen, recorder and brain runner",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvoreeducacao/understudy.git",
+    "directory": "apps/computer"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types --no-warnings src/main.ts",
+    "mock": "node --experimental-strip-types --no-warnings dev/mock-server.ts",
+    "test": "node --experimental-strip-types --no-warnings --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@understudy/characters": "workspace:*",
+    "@understudy/protocol": "workspace:*",
+    "@understudy/runtime": "workspace:*",
+    "playwright-core": "1.63.0",
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/ws": "8.18.2"
+  },
+  "engines": {
+    "node": ">=22.6"
+  }
+}

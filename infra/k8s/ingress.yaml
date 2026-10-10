@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${NAME_PREFIX}-web
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    project: ${NAME_PREFIX}
+  annotations:
+    alb.ingress.kubernetes.io/group.name: ${ALB_GROUP}
+    alb.ingress.kubernetes.io/certificate-arn: ${CERTIFICATE_ARN}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80, "HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /api/health
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+    alb.ingress.kubernetes.io/target-group-attributes: deregistration_delay.timeout_seconds=20
+    alb.ingress.kubernetes.io/tags: Project=${NAME_PREFIX}
+    external-dns.alpha.kubernetes.io/hostname: ${PUBLIC_HOST}
+spec:
+  ingressClassName: alb
+  rules:
+    - host: ${PUBLIC_HOST}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${NAME_PREFIX}-web
+                port:
+                  number: 80

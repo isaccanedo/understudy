@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Northwind Payables</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.4 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f5f7; color: #1d2330; }
+header { position: absolute; left: 0; top: 0; width: 1280px; height: 56px; background: #1f3a5f; color: #fff; display: flex; align-items: center; padding: 0 32px; font-weight: 600; letter-spacing: .2px; }
+header span { font-weight: 400; opacity: .7; margin-left: 12px; }
+.card { position: absolute; left: 80px; top: 88px; width: 620px; height: 470px; background: #fff; border: 1px solid #dde1e7; border-radius: 10px; }
+h1 { position: absolute; left: 112px; top: 100px; margin: 0; font-size: 22px; }
+.sub { position: absolute; left: 112px; top: 136px; margin: 0; color: #5b6475; font-size: 14px; }
+label { position: absolute; left: 112px; font-size: 13px; color: #5b6475; }
+.f { position: absolute; left: 112px; width: 400px; height: 40px; font-size: 16px; padding: 0 12px; border: 1px solid #c8ced8; border-radius: 6px; background: #fff; }
+#pay { position: absolute; left: 112px; top: 470px; width: 400px; height: 44px; font-size: 16px; font-weight: 600; color: #fff; background: #1f7a4d; border: 0; border-radius: 6px; }
+#result { position: absolute; left: 112px; top: 524px; margin: 0; color: #1f7a4d; font-weight: 600; }
+.side { position: absolute; left: 740px; top: 88px; width: 440px; height: 470px; background: #fff; border: 1px solid #dde1e7; border-radius: 10px; padding: 20px 24px; }
+.side h2 { margin: 0 0 12px; font-size: 16px; }
+.row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eef0f3; font-size: 14px; }
+.row b { font-weight: 600; }
+</style>
+</head>
+<body>
+<header>Northwind Payables <span>Invoices waiting for payment</span></header>
+<div class="card"></div>
+<h1>Pay an invoice</h1>
+<p class="sub">Fill in the invoice and approve the payment.</p>
+<form id="invoice">
+<label for="supplier" style="top:176px">Supplier</label>
+<input class="f" id="supplier" name="supplier" style="top:196px" autocomplete="off">
+<label for="number" style="top:252px">Invoice number</label>
+<input class="f" id="number" name="number" style="top:272px" autocomplete="off">
+<label for="amount" style="top:328px">Amount (USD)</label>
+<input class="f" id="amount" name="amount" style="top:348px" autocomplete="off">
+<label for="due" style="top:404px">Due date</label>
+<input class="f" id="due" name="due" style="top:424px; width:180px" placeholder="2026-10-10" autocomplete="off">
+<button id="pay" type="submit">Approve payment</button>
+</form>
+<p id="result"></p>
+<div class="side">
+<h2>This week</h2>
+<div class="row"><span>Acme Supplies</span><b>INV-2041 · $1,240.00</b></div>
+<div class="row"><span>Blue Harbor Logistics</span><b>INV-7783 · $860.50</b></div>
+<div class="row"><span>Greenleaf Paper Co.</span><b>INV-0312 · $312.00</b></div>
+</div>
+<script>
+document.getElementById("invoice").onsubmit = (event) => {
+  event.preventDefault();
+  document.getElementById("result").textContent = "Payment approved for " + document.getElementById("supplier").value;
+};
+</script>
+</body>
+</html>

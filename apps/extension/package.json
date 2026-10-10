@@ -1,0 +1,29 @@
+{
+  "name": "@understudy/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Understudy browser extension: teach an understudy a task in your own browser while you talk",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvoreeducacao/understudy.git",
+    "directory": "apps/extension"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --experimental-strip-types --no-warnings --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@understudy/protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.1.40",
+    "@types/node": "22.20.5",
+    "esbuild": "0.28.2",
+    "playwright-core": "1.63.0"
+  },
+  "engines": {
+    "node": ">=22.6"
+  }
+}

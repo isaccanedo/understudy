@@ -1,0 +1,15 @@
+{
+  "name": "understudy",
+  "private": true,
+  "description": "AI coworkers that learn a task by watching you do it once, each on an isolated computer of its own",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvoreeducacao/understudy.git"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @understudy/web dev",
+    "test": "pnpm -r test"
+  }
+}

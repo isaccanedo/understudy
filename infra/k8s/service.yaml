@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${NAME_PREFIX}-web
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    project: ${NAME_PREFIX}
+spec:
+  selector:
+    app: ${NAME_PREFIX}-web
+  ports:
+    - port: 80
+      targetPort: 3000

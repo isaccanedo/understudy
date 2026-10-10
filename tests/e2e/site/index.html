@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Supplier form</title>
+<style>
+body { margin: 0; font: 16px system-ui, sans-serif; background: #fff; color: #111; }
+label { position: absolute; left: 100px; font-size: 13px; }
+.f { position: absolute; left: 100px; width: 320px; height: 36px; font-size: 16px; }
+#result { position: absolute; left: 100px; top: 330px; }
+</style>
+</head>
+<body>
+<form id="supplier">
+<label for="name" style="top:80px">Supplier name</label>
+<input class="f" id="name" name="name" style="top:100px">
+<label for="amount" style="top:160px">Amount</label>
+<input class="f" id="amount" name="amount" style="top:180px">
+<button class="f" id="send" type="submit" style="top:250px">Send payment</button>
+</form>
+<p id="result"></p>
+<script>
+document.getElementById("supplier").onsubmit = (event) => {
+  event.preventDefault();
+  document.getElementById("result").textContent = "Payment sent";
+};
+</script>
+</body>
+</html>

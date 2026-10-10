@@ -1,0 +1,15 @@
+services:
+  host:
+    environment:
+      UNDERSTUDY_COMPUTER_NETWORK: understudy-e2e-agents
+      UNDERSTUDY_COMPUTER_ENV: UNDERSTUDY_FAKE_BRAIN,UNDERSTUDY_DESKTOP
+      UNDERSTUDY_FAKE_BRAIN: "1"
+      UNDERSTUDY_DESKTOP: "0"
+      UNDERSTUDY_HOST_CAPACITY: "4"
+
+  site:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./tests/e2e/site:/usr/share/nginx/html:ro
+    ports:
+      - "39101:80"

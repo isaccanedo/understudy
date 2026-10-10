@@ -1,0 +1,28 @@
+{
+  "name": "@understudy/host",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Understudy host: keeps one computer container per agent through the Docker socket",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvoreeducacao/understudy.git",
+    "directory": "apps/host"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types --no-warnings src/main.ts",
+    "test": "node --experimental-strip-types --no-warnings --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@understudy/protocol": "workspace:*",
+    "@understudy/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/ws": "8.18.2"
+  },
+  "engines": {
+    "node": ">=22.6"
+  }
+}

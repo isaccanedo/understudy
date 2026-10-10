@@ -1,0 +1,14 @@
+services:
+  host:
+    environment:
+      UNDERSTUDY_COMPUTER_NETWORK: understudy-demo-agents
+      UNDERSTUDY_COMPUTER_ENV: UNDERSTUDY_FAKE_BRAIN
+      UNDERSTUDY_FAKE_BRAIN: "1"
+      UNDERSTUDY_HOST_CAPACITY: "3"
+
+  site:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./tests/e2e/site:/usr/share/nginx/html:ro
+    ports:
+      - "39201:80"

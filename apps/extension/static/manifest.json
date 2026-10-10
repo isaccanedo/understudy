@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Understudy",
+  "version": "0.1.0",
+  "description": "Teach your understudy a task by doing it once in your own browser while you explain it out loud.",
+  "minimum_chrome_version": "116",
+  "permissions": ["storage", "offscreen", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "Understudy" }
+}

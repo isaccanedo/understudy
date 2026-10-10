@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${NAME_PREFIX}-placeholder
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: ${NAME_PREFIX}-web
+    project: ${NAME_PREFIX}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${NAME_PREFIX}-web
+      variant: placeholder
+  template:
+    metadata:
+      labels:
+        app: ${NAME_PREFIX}-web
+        variant: placeholder
+        project: ${NAME_PREFIX}
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/arch: ${NODE_ARCH}
+      containers:
+        - name: web
+          image: public.ecr.aws/docker/library/node:22-alpine
+          command:
+            - node
+            - -e
+            - "require('http').createServer((q,s)=>{s.writeHead(q.url==='/api/health'?200:503,{'content-type':'application/json'});s.end(JSON.stringify({ok:q.url==='/api/health',placeholder:true}))}).listen(3000)"
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 96Mi

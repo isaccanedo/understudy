@@ -1,0 +1,129 @@
+name: Deploy
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Commit of the source repository to deploy; empty deploys the latest published images
+        required: false
+      force:
+        description: Deploy even if this commit is already live
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_REPO: ${{ vars.SOURCE_REPO }}
+      IMAGE_SOURCE: ${{ vars.IMAGE_SOURCE }}
+      NAME_PREFIX: ${{ vars.NAME_PREFIX }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+    steps:
+      - id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WANTED: ${{ inputs.tag }}
+        run: |
+          tag="$WANTED"
+          if [ -z "$tag" ]; then
+            tag=$(gh run list -R "$SOURCE_REPO" --workflow publish.yml --branch main --status success --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || true)
+          fi
+          if [ -z "$tag" ] || [ "$tag" = "null" ]; then
+            echo "::notice::no published images in $SOURCE_REPO yet"
+            tag=""
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - if: steps.target.outputs.tag != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - id: live
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          if [ -z "$TAG" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          live=$(aws ecr describe-images --repository-name "${NAME_PREFIX}-web" --image-ids imageTag=deployed --query 'imageDetails[0].imageTags' --output text 2>/dev/null || true)
+          if [ "$FORCE" != "true" ] && printf '%s\n' $live | grep -qx "$TAG"; then
+            echo "::notice::$TAG is already live"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.live.outputs.skip == 'false'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.SOURCE_REPO }}
+          ref: ${{ steps.target.outputs.tag }}
+
+      - if: steps.live.outputs.skip == 'false'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - if: steps.live.outputs.skip == 'false'
+        uses: docker/setup-buildx-action@v3
+
+      - if: steps.live.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+        run: |
+          for app in web computer host; do
+            docker buildx imagetools create \
+              -t "${ECR_REGISTRY}/${NAME_PREFIX}-${app}:${TAG}" \
+              -t "${ECR_REGISTRY}/${NAME_PREFIX}-${app}:latest" \
+              "${IMAGE_SOURCE}/understudy-${app}:${TAG}"
+          done
+
+      - if: steps.live.outputs.skip == 'false'
+        env:
+          PUBLIC_HOST: ${{ vars.PUBLIC_HOST }}
+        run: bash infra/host/deploy.sh "${{ steps.target.outputs.tag }}"
+
+      - if: steps.live.outputs.skip == 'false'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 1800
+          role-chaining: true
+
+      - if: steps.live.outputs.skip == 'false'
+        env:
+          K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
+          PUBLIC_HOST: ${{ vars.PUBLIC_HOST }}
+          ALB_GROUP: ${{ vars.ALB_GROUP }}
+          NODE_ARCH: ${{ vars.NODE_ARCH }}
+          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
+          IMAGE: ${{ vars.ECR_REGISTRY }}/${{ vars.NAME_PREFIX }}-web:${{ steps.target.outputs.tag }}
+        run: |
+          aws eks update-kubeconfig --name "${{ vars.EKS_CLUSTER }}" --region "${{ vars.AWS_REGION }}"
+          bash infra/k8s/apply.sh
+
+      - if: steps.live.outputs.skip == 'false'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - if: steps.live.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+        run: docker buildx imagetools create -t "${ECR_REGISTRY}/${NAME_PREFIX}-web:deployed" "${ECR_REGISTRY}/${NAME_PREFIX}-web:${TAG}"

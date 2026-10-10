@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${NAME_PREFIX}-web
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: ${NAME_PREFIX}-web
+    project: ${NAME_PREFIX}
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ${NAME_PREFIX}-web
+  template:
+    metadata:
+      labels:
+        app: ${NAME_PREFIX}-web
+        project: ${NAME_PREFIX}
+    spec:
+      serviceAccountName: ${NAME_PREFIX}-web
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      nodeSelector:
+        kubernetes.io/arch: ${NODE_ARCH}
+      containers:
+        - name: web
+          image: ${IMAGE}
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: HOSTNAME
+              value: 0.0.0.0
+            - name: NODE_ENV
+              value: production
+            - name: AWS_REGION
+              value: ${AWS_REGION}
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/db-ca/db-ca.pem
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "25"]
+          envFrom:
+            - secretRef:
+                name: ${NAME_PREFIX}-env
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/live
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          volumeMounts:
+            - name: db-ca
+              mountPath: /etc/db-ca
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: db-ca
+          configMap:
+            name: ${NAME_PREFIX}-db-ca

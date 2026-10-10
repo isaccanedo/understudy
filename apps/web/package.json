@@ -1,0 +1,57 @@
+{
+  "name": "@understudy/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Understudy panel: web app, API, WebSocket hub, approval gatekeeper and scheduler",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvoreeducacao/understudy.git",
+    "directory": "apps/web"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false --env-file-if-exists=.env --include './src/server/**' --include './src/lib/**' --ignore './src/app/**' --ignore './src/components/**' --ignore './.next/**' server.ts",
+    "build": "next build && node build-server.mjs",
+    "start": "NODE_ENV=production node dist/server.mjs",
+    "db:generate": "drizzle-kit generate",
+    "create-user": "tsx --env-file-if-exists=.env scripts/create-user.ts",
+    "test": "node --import tsx --test 'src/**/*.test.ts'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@resvg/resvg-wasm": "2.6.2",
+    "@understudy/characters": "workspace:*",
+    "@understudy/protocol": "workspace:*",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/xterm": "6.0.0",
+    "aws4fetch": "1.0.20",
+    "better-auth": "1.7.7",
+    "croner": "10.0.1",
+    "drizzle-orm": "0.45.3",
+    "lucide-react": "1.52.0",
+    "next": "16.4.0",
+    "pg": "8.23.1",
+    "postal-mime": "4.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "undici": "7.30.0",
+    "web-push": "3.6.7",
+    "ws": "8.22.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/web-push": "3.6.4",
+    "@types/ws": "8.18.2",
+    "drizzle-kit": "0.31.11",
+    "esbuild": "0.28.2",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+infra/config.env
+tests/e2e/demo-results

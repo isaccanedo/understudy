@@ -1,0 +1,1 @@
+ALTER TABLE "approvals" ADD COLUMN "used_at" timestamp with time zone;
